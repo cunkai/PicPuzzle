@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>批量读取本地照片并切割</title>
+  </head>
+  <body>
+    <h1>请选择要切割的照片:</h1>
+    <input type="file" id="file-input" multiple>
+    <button id="submit-btn">切割四小图</button>
+
+    <script>
+      const fileInput = document.getElementById('file-input');
+      const submitBtn = document.getElementById('submit-btn');
+
+      submitBtn.addEventListener('click', () => {
+        const files = fileInput.files;
+        for (let i = 0; i < files.length; i++) {
+          // 对每张照片进行处理
+        }
+      });
+      // 对每张照片进行处理的函数
+    function processImage(file) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        canvas.width = img.width / 2;
+        canvas.height = img.height / 2;
+
+        // 将照片等分成四张图
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        saveImage(canvas, "1_"+file.name);
+        ctx.drawImage(img, canvas.width, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        saveImage(canvas, "2_"+file.name);
+        ctx.drawImage(img, 0, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        saveImage(canvas, "3_"+file.name);
+        ctx.drawImage(img, canvas.width, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        saveImage(canvas, "4_"+file.name);
+      };
+    }
+
+    // 保存图像的函数
+    function saveImage(canvas, name) {
+      const link = document.createElement('a');
+      link.download = name;
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    submitBtn.addEventListener('click', () => {
+      const files = fileInput.files;
+      for (let i = 0; i < files.length; i++) {
+        processImage(files[i]);
+      }
+    });
+    </script>
+  </body>
+</html>
