@@ -1,61 +1,256 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>批量读取本地照片并切割</title>
-  </head>
-  <body>
-    <h1>请选择要切割的照片:</h1>
-    <input type="file" id="file-input" multiple>
-    <button id="submit-btn">切割四小图</button>
 
-    <script>
-      const fileInput = document.getElementById('file-input');
-      const submitBtn = document.getElementById('submit-btn');
+<head>
+  <meta charset="utf-8">
+  <title>图片切割器</title>
+  <style type="text/css">
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      margin-top: 30px;
+      animation: bgAni 10s ease-in-out infinite;
+    }
 
-      submitBtn.addEventListener('click', () => {
-        const files = fileInput.files;
-        for (let i = 0; i < files.length; i++) {
-          // 对每张照片进行处理
+    @keyframes bgAni {
+			0% { background-color: #3dbaf3; }
+			50% { background-color: rgb(25, 141, 250); }
+			100% { background-color: #2efcfc; }
+		}
+		.container {
+			position: relative;
+			width: 100%;
+			height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			perspective: 1000px; /* 使用perspective属性设置3D透视效果 */
+		}
+		.midjourney {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform-style: preserve-3d; /* 使用transform-style属性设置子元素继承父元素的3D转换效果 */
+			transform: translate(-50%, -50%) rotateX(60deg) rotateY(45deg); /* 使用translate()和rotate()函数设置初始位置和角度 */
+			font-size: 128px;
+			color: rgba(255,255,255,0.2); /* 设置文字颜色为淡白色 */
+			text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+			animation: rotating 20s linear infinite; /* 使用CSS3动画旋转 */
+		}
+		@keyframes rotating {
+			from { transform: translate(-50%, -50%) rotateX(60deg) rotateY(45deg) rotateZ(0deg); } /* 从0度开始旋转 */
+			to { transform: translate(-50%, -50%) rotateX(60deg) rotateY(45deg) rotateZ(360deg); } /* 旋转一周（360度） */
+		}
+
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    input[type=number] {
+      width: 60px;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      /* Green */
+      border: none;
+      color: white;
+      padding: 10px 24px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #preview-container {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      /* 将容器内的小图排列成自适应列数 */
+      max-width: 66.67vw;
+      /* 将容器宽度限制在屏幕宽度的2/3之内 */
+      margin: 0 auto;
+      /* 居中显示容器 */
+      gap: 10px;
+      /* 设置小图之间的间距 */
+      /* justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto; */
+    }
+
+    .preview-image {
+      margin: 10px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .preview-image:hover {
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .file-container {
+      margin-top: 20px;
+      /* 将选择文件按钮和顶部的间距设为 20px */
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      /* 或者 flex-start */
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      gap: 40px;
+      /* 设置间距为 40px */
+    }
+
+    .file-button {
+      height: 40px;
+      width: 142px;
+      /* 修改为 142px */
+      background-color: #2196F3;
+      /* Blue */
+      border: none;
+      color: white;
+      padding: 10px 24px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>图片切割器</h1>
+
+  <label for="input-count">切割份数：</label>
+  <input type="number" id="input-count" min="2" value="4"><br>
+
+  <div class="button-container">
+
+    <div style="flex-grow: 1;">
+      <div class="file-container">
+        <label for="input-file" class="file-button">选择图片</label>
+        <input type="file" id="input-file" style="display: none;" multiple>
+      </div>
+    </div>
+  </div>
+  <!-- <button id="preview-button">预览小图</button> -->
+  <button id="save-button">保存小图</button>
+  <div id="preview-container"></div>
+
+	<div class="container">
+		<div class="midjourney"><i class="fas fa-font"></i> Midjourney</div> <!-- 使用FontAwesome字体图标库显示"Midjourney" -->
+	</div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+      var input = document.getElementById("input-file");
+      var countInput = document.getElementById("input-count");
+      var previewContainer = document.getElementById("preview-container");
+      // var previewButton = document.getElementById("preview-button");
+      var saveButton = document.getElementById("save-button");
+      var previewImages = [];
+
+      input.addEventListener("change", function () {
+        var files = this.files;
+        for (var i = 0; i < files.length; i++) {
+
+          var file = files[i];
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            var img = new Image();
+            img.src = e.target.result;
+            img.onload = function () {
+              var canvas = document.createElement("canvas");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              var ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+              var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              var count = parseInt(countInput.value);
+              // 计算横向和纵向需要切割的次数
+              var horizontalCount = Math.ceil(count / 2);
+              var verticalCount = Math.floor(count / 2);
+              var width = Math.floor(canvas.width / horizontalCount);
+              var height = Math.floor(canvas.height / verticalCount);
+              for (var i = 0; i < horizontalCount; i++) {
+                for (var j = 0; j < verticalCount; j++) {
+                  var x = i * width;
+                  var y = j * height;
+                  var croppedImageData = ctx.getImageData(x, y, width, height);
+                  var croppedCanvas = document.createElement("canvas");
+                  croppedCanvas.width = width;
+                  croppedCanvas.height = height;
+                  var croppedCtx = croppedCanvas.getContext("2d");
+                  croppedCtx.putImageData(croppedImageData, 0, 0);
+                  var previewImage = new Image();
+                  previewImage.src = croppedCanvas.toDataURL();
+                  previewImage.className = "preview-image";
+                  previewImage.addEventListener("click", function () {
+                    window.open(this.src, "_blank");
+                  });
+                  previewImage.style.width = '100%'; // 设置图片宽度为容器的宽度
+                  previewImage.style.objectFit = 'cover'; // 保持图片比例不变
+
+                  previewImages.push(previewImage);
+                  previewContainer.appendChild(previewImage);
+                }
+              }
+            };
+          };
+          reader.readAsDataURL(file);
         }
       });
-      // 对每张照片进行处理的函数
-    function processImage(file) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
 
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = () => {
-        canvas.width = img.width / 2;
-        canvas.height = img.height / 2;
+      // previewButton.addEventListener("click", function() {
+      // 	while (previewContainer.firstChild) {
+      // 	    previewContainer.removeChild(previewContainer.firstChild);
+      // 	}
+      // 	previewImages = [];
+      // 	input.click();
+      // });
 
-        // 将照片等分成四张图
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        saveImage(canvas, "1_"+file.name);
-        ctx.drawImage(img, canvas.width, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        saveImage(canvas, "2_"+file.name);
-        ctx.drawImage(img, 0, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        saveImage(canvas, "3_"+file.name);
-        ctx.drawImage(img, canvas.width, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        saveImage(canvas, "4_"+file.name);
-      };
-    }
+      saveButton.addEventListener("click", function () {
+        if (previewImages.length === 0) {
+          alert("请先上传并预览图片");
+          return;
+        }
+        for (var i = 0; i < previewImages.length; i++) {
+          var a = document.createElement("a");
+          a.href = previewImages[i].src;
+          a.download = "image_" + (i + 1) + ".png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+        // 清除小图预览
+        while (previewContainer.firstChild) {
+          previewContainer.removeChild(previewContainer.firstChild);
+        }
+        previewImages = [];
+      });
 
-    // 保存图像的函数
-    function saveImage(canvas, name) {
-      const link = document.createElement('a');
-      link.download = name;
-      link.href = canvas.toDataURL();
-      link.click();
-    }
-
-    submitBtn.addEventListener('click', () => {
-      const files = fileInput.files;
-      for (let i = 0; i < files.length; i++) {
-        processImage(files[i]);
-      }
     });
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>
