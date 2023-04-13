@@ -162,6 +162,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
 
   <script type="text/javascript">
+  // 清除小图预览
+function clearPreview() {
+  while (previewContainer.firstChild) {
+    previewContainer.removeChild(previewContainer.firstChild);
+  }
+  previewImages = [];
+}
     document.addEventListener("DOMContentLoaded", function () {
       var input = document.getElementById("input-file");
       var countInput = document.getElementById("input-count");
@@ -235,18 +242,16 @@
           return;
         }
         for (var i = 0; i < previewImages.length; i++) {
-          var a = document.createElement("a");
-          a.href = previewImages[i].src;
-          a.download = "image_" + (i + 1) + ".png";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
-        // 清除小图预览
-        while (previewContainer.firstChild) {
-          previewContainer.removeChild(previewContainer.firstChild);
-        }
-        previewImages = [];
+  var a = document.createElement("a");
+  a.href = previewImages[i].src;
+  a.download = "image_" + (i + 1) + ".png";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// 保存完成后清除小图预览
+clearPreview();
       });
 
     });
