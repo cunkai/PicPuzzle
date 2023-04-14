@@ -56,6 +56,44 @@
         button:hover {
             background-color: #555;
         }
+        
+        /* 新增样式 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .error {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #f00;
+            z-index: 1000;
+            display: none;
+        }
     </style>
 </head>
 
@@ -68,18 +106,27 @@
             <div style="font-size: 14px;">可以选择多张图</div>
         </button>
     </div>
+    
+    <!-- 新增 HTML -->
+    <div class="overlay"></div>
+    <div class="loading">请稍后，正在处理...</div>
+    <div class="error"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+    <script src="jszip.min.js"></script>
     <script>
         const submitBtn = document.getElementById('submit-btn');
         // 用于存储切割后的所有图片
         let imageArr = [];
+        //文件读取
+        const input = document.createElement('input');
         submitBtn.addEventListener('click', () => {
-            const input = document.createElement('input');
             input.type = 'file';
             input.multiple = true;
             input.addEventListener('change', () => {
                 const files = input.files;
+                showOverlay();
+                showError('');
+                showMessage('正在切割中...');
                 for (let i = 0; i < files.length; i++) {
                     processImage(files[i]);
                 }
@@ -102,37 +149,77 @@
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
                 saveImage(canvas, "1_" + file.name);
                 ctx.drawImage(img, canvas.width, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                saveImage(canvas, "2_" + file.name);
-                ctx.drawImage(img, 0, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                saveImage(canvas, "3_" + file.name);
-                ctx.drawImage(img, canvas.width, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                saveImage(canvas, "4_" + file.name);
-            };
-        }
+            saveImage(canvas, "2_" + file.name);
+            ctx.drawImage(img, 0, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            saveImage(canvas, "3_" + file.name);
+            ctx.drawImage(img, canvas.width, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            saveImage(canvas, "4_" + file.name);
+        };
+    }
 
-        // 保存图像的函数
-        function saveImage(canvas, name) {
-            canvas.toBlob(blob => {
-                imageArr.push({ name: name, blob: blob });
+    // 保存图像的函数
+    const zip = new JSZip();
+    function saveImage(canvas, name) {
+        canvas.toBlob(blob => {
+            imageArr.push({ name: name, blob: blob });
 
-                // 如果所有图像均已处理完成，则打包成ZIP文件并提供下载链接
-                if (imageArr.length === 4 * input.files.length) {
-                    const zip = new JSZip();
-                    for (let i = 0; i < imageArr.length; i++) {
-                        zip.file(imageArr[i].name, imageArr[i].blob);
-                    }
-                    zip.generateAsync({ type: 'blob' })
-                        .then(blob => {
-                            const link = document.createElement('a');
-                            link.download = 'images.zip';
-                            link.href = URL.createObjectURL(blob);
-                            link.click();
-                        });
+            // 如果所有图像均已处理完成，则打包成ZIP文件并提供下载链接
+            if (imageArr.length === 4 * input.files.length) {
+
+                for (let i = 0; i < imageArr.length; i++) {
+                    zip.file(imageArr[i].name, imageArr[i].blob);
                 }
-            });
-        }
+                zip.generateAsync({ type: 'blob' })
+                    .then(blob => {
+                        const link = document.createElement('a');
+                        link.download = 'images.zip';
+                        link.href = URL.createObjectURL(blob);
+                        link.click();
+                        hideOverlay();
+                        showMessage('压缩图片到zip文件');
+                    })
+                    .catch(error => {
+                        showError('出错了，请重试');
+                        console.error(error);
+                    });
+            }
+        });
+    }
 
-    </script>
+    /* 新增函数 */
+    function showOverlay() {
+        const overlay = document.querySelector('.overlay');
+        const loading = document.querySelector('.loading');
+        overlay.style.display = 'block';
+        loading.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.querySelector('.overlay');
+        const loading = document.querySelector('.loading');
+        overlay.style.display = 'none';
+        loading.style.display = 'none';
+    }
+    
+    function showMessage(message) {
+        const error = document.querySelector('.error');
+        error.textContent = message;
+        error.style.display = 'block';
+        setTimeout(() => {
+            error.style.display = 'none';
+        }, 3000);
+    }
+    
+    function showError(error) {
+        const errorEl = document.querySelector('.error');
+        errorEl.textContent = error;
+        errorEl.style.display = 'block';
+        setTimeout(() => {
+            errorEl.style.display = 'none';
+        }, 3000);
+    }
+
+</script>
 </body>
 
 </html>
