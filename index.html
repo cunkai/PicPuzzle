@@ -182,12 +182,12 @@
             height: 50px;
             background-color: #fff;
             border-radius: 50%;
-            font-size: 35px;
+            font-size: 5vw;
             color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: rotate(45deg);
+            transform: rotate(-45deg);
             z-index: 1001;
         `;
         arrow.innerHTML = '&rarr;';
@@ -200,7 +200,7 @@
             padding: 10px;
             background-color: #fff;
             color: #333;
-            font-size: 16px;
+            font-size: 10vw;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             z-index: 1001;
@@ -209,7 +209,7 @@
         document.body.appendChild(message);
         overlay.style.display = 'block';
     }
-    
+
         const submitBtn = document.getElementById('submit-btn');
         // 用于存储切割后的所有图片
         let imageArr = [];
