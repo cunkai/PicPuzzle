@@ -171,7 +171,7 @@
 
     <script src="jszip.min.js"></script>
     <script>
-        if (true) {
+        if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent) && /MicroMessenger/i.test(navigator.userAgent)) {
         const overlay = document.querySelector('.overlay');
         const arrow = document.createElement('div');
         arrow.style.cssText = `
