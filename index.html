@@ -57,7 +57,7 @@
         button:hover {
             background-color: #555;
         }
-        
+
         /* 新增样式 */
         .overlay {
             position: fixed;
@@ -69,7 +69,7 @@
             display: none;
             z-index: 999;
         }
-        
+
         .loading {
             position: absolute;
             top: 50%;
@@ -82,7 +82,7 @@
             display: none;
             z-index: 1000;
         }
-        
+
         .error {
             position: fixed;
             top: 20px;
@@ -101,13 +101,13 @@
 <body>
     <div class="container">
         <div class="midjourney"><i class="fas fa-font"></i> Midjourney</div>
-        
+
         <button id="submit-btn">
             <div>切割四小图</div>
             <div style="font-size: 1vw;">可以选择多张图</div>
         </button>
     </div>
-    
+
     <!-- 新增 HTML -->
     <div class="overlay"></div>
     <div class="loading">正在处理中...</div>
@@ -118,109 +118,118 @@
         const submitBtn = document.getElementById('submit-btn');
         // 用于存储切割后的所有图片
         let imageArr = [];
+        // 新增代码：添加用于处理文件的函数
+        function handleFiles(files) {
+            showOverlay();
+            showError('');
+            showMessage('正在切割中...');
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.readAsDataURL(files[i]);
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        processImage(img, files[i].name);
+                    }
+                };
+            }
+        }
         //文件读取
         const input = document.createElement('input');
         submitBtn.addEventListener('click', () => {
+            imageArr = [];
             input.type = 'file';
             input.multiple = true;
+            input.value = '';
             input.addEventListener('change', () => {
-                const files = input.files;
-                showOverlay();
-                showError('');
-                showMessage('正在切割中...');
-                for (let i = 0; i < files.length; i++) {
-                    processImage(files[i]);
-                }
+                handleFiles(input.files);
             });
             input.click();
         });
 
         // 对每张照片进行处理的函数
-        function processImage(file) {
+        function processImage(img, fileName) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                canvas.width = img.width / 2;
-                canvas.height = img.height / 2;
+            canvas.width = img.width / 2;
+            canvas.height = img.height / 2;
 
-                // 将照片等分成四张图
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                saveImage(canvas, "1_" + file.name);
-                ctx.drawImage(img, canvas.width, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            saveImage(canvas, "2_" + file.name);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            saveImage(canvas, "1_" + fileName);
+            ctx.drawImage(img, canvas.width, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            saveImage(canvas, "2_" + fileName);
             ctx.drawImage(img, 0, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            saveImage(canvas, "3_" + file.name);
+            saveImage(canvas, "3_" + fileName);
             ctx.drawImage(img, canvas.width, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            saveImage(canvas, "4_" + file.name);
-        };
-    }
+            saveImage(canvas, "4_" + fileName);
+        }
 
-    // 保存图像的函数
-    const zip = new JSZip();
-    function saveImage(canvas, name) {
-        canvas.toBlob(blob => {
-            imageArr.push({ name: name, blob: blob });
+        // 保存图像的函数
+        const zip = new JSZip();
+        function saveImage(canvas, name) {
+    canvas.toBlob(blob => {
+        imageArr.push({ name: name, blob: blob });
 
-            // 如果所有图像均已处理完成，则打包成ZIP文件并提供下载链接
-            if (imageArr.length === 4 * input.files.length) {
+        if (imageArr.length === 4 * input.files.length) {
+            showMessage('压缩图片到zip文件');
 
-                for (let i = 0; i < imageArr.length; i++) {
-                    zip.file(imageArr[i].name, imageArr[i].blob);
-                }
-                zip.generateAsync({ type: 'blob' })
-                    .then(blob => {
-                        const link = document.createElement('a');
-                        link.download = 'images.zip';
-                        link.href = URL.createObjectURL(blob);
-                        link.click();
-                        hideOverlay();
-                        showMessage('压缩图片到zip文件');
-                    })
-                    .catch(error => {
-                        showError('出错了，请重试');
-                        console.error(error);
-                    });
+            for (let i = 0; i < imageArr.length; i++) {
+                zip.file(imageArr[i].name, imageArr[i].blob);
             }
-        });
-    }
+            zip.generateAsync({ type: 'blob' })
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.download = '切割图'+imageArr.length+'张.zip';
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    hideOverlay();
+                    showMessage('完成！');
+                })
+                .catch(error => {
+                    showError('出错了，请重试');
+                    console.error(error);
+                });
+        }
+    });
+}
 
-    /* 新增函数 */
-    function showOverlay() {
-        const overlay = document.querySelector('.overlay');
-        const loading = document.querySelector('.loading');
-        overlay.style.display = 'block';
-        loading.style.display = 'block';
-    }
 
-    function hideOverlay() {
-        const overlay = document.querySelector('.overlay');
-        const loading = document.querySelector('.loading');
-        overlay.style.display = 'none';
-        loading.style.display = 'none';
-    }
-    
-    function showMessage(message) {
-        const error = document.querySelector('.error');
-        error.textContent = message;
-        error.style.display = 'block';
-        setTimeout(() => {
-            error.style.display = 'none';
-        }, 3000);
-    }
-    
-    function showError(error) {
-        const errorEl = document.querySelector('.error');
-        errorEl.textContent = error;
-        errorEl.style.display = 'block';
-        setTimeout(() => {
-            errorEl.style.display = 'none';
-        }, 3000);
-    }
+        /* 新增函数 */
+        function showOverlay() {
+            const overlay = document.querySelector('.overlay');
+            const loading = document.querySelector('.loading');
+            overlay.style.display = 'block';
+            loading.style.display = 'block';
+        }
 
-</script>
+        function hideOverlay() {
+            const overlay = document.querySelector('.overlay');
+            const loading = document.querySelector('.loading');
+            overlay.style.display = 'none';
+            loading.style.display = 'none';
+        }
+
+        function showMessage(message) {
+            const error = document.querySelector('.error');
+            error.textContent = message;
+            error.style.display = 'block';
+            setTimeout(() => {
+                error.style.display = 'none';
+            }, 3000);
+        }
+
+        function showError(error) {
+            const errorEl = document.querySelector('.error');
+            errorEl.textContent = error;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 3000);
+        }
+
+    </script>
 </body>
 
 </html>
