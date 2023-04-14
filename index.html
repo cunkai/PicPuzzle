@@ -1,17 +1,17 @@
-<!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="UTF-8">
     <title>批量读取本地照片并切割</title>
     <link rel="shortcut icon" type="image/png" href="favicon.png">
+    <meta property="og:image" content="https://gitee.com/cunkai/Midjourney-1-to-4/raw/master/favicon.png" />
     <style>
         body {
-            background: linear-gradient(to bottom, #F2F3F4, #D8DBE2);
+            background: linear-gradient(to bottom, #c2dcf7, #D8DBE2);
             font-family: Arial, sans-serif;
             color: #333;
-            margin: 2vw;
-            padding: 2vw;
+            margin: 1vw;
+            padding: 1vw;
         }
 
         .container {
@@ -21,18 +21,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
         .midjourney {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10vw;
+            font-size: 3vw;
             font-weight: bold;
             text-transform: uppercase;
-            color: #333;
-            margin-bottom: 80px;
-            margin-top: 10vh;
+            color: #03b4ab;
+            margin-bottom: 10%;
+            margin-top: 10%;
         }
 
         .midjourney i {
@@ -48,18 +49,19 @@
             padding: 10px 20px;
             border: none;
             border-radius: 1vw;
-            font-size: 5vw;
+            font-size: 8vw;
             color: #fff;
             background-color: #333;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-top: 3vh;
+            margin-bottom: 3vh;
         }
 
         button:hover {
             background-color: #555;
         }
 
-        /* 新增样式 */
         .overlay {
             position: fixed;
             top: 0;
@@ -96,71 +98,114 @@
             z-index: 1000;
             display: none;
         }
-        /* 箭头和提示信息样式 */
-    @media (max-width: 768px) {
-        div[style*="rotate(45deg)"] {
-            top: 20px;
-            right: 20px;
+
+        /* 竖屏样式 */
+        @media screen and (orientation:portrait) {
+            .midjourney {
+                font-size: 13vw;
+                margin-bottom: 10vh;
+                margin-top: 20vh;
+            }
+
+            h1 {
+                font-size: 4vw;
+                margin-bottom: 10px;
+            }
+
+            button {
+                font-size: 8vw;
+                margin-top: 5vh;
+                margin-bottom: 5vh;
+            }
+
+            .submit-btn-small {
+                font-size: 3vw;
+                margin-top: 0.3vh;
+            }
+
+            label[for="image-num-input"] {
+                font-size: 5vw;
+                margin-right: 1vw;
+                margin-left: 1vw;
+            }
+
+            input[type="number"] {
+                padding: 10px 20px;
+                border-radius: 1vw;
+                font-size: 5vw;
+                border: none;
+                background-color: #fff;
+                width: 100%;
+                max-width: 100px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+                line-height: 1;
+                /* 重置默认行高 */
+                text-align: center;
+            }
+
+
+
         }
-        div[style*="rotate(45deg)"]::before {
-            content: '';
-            display: block;
-            width: 8px;
-            height: 8px;
-            background-color: #fff;
-            transform: rotate(45deg);
-            position: absolute;
-            top: 21px;
-            left: -4px;
+
+        /* 横屏样式 */
+        @media screen and (orientation:landscape) {
+            .midjourney {
+                font-size: 10vw;
+                margin-bottom: 3vh;
+                margin-top: 2vh;
+            }
+
+            h1 {
+                font-size: 5vw;
+                margin-bottom: 20px;
+            }
+
+            
+
+            button {
+                font-size: 3vw;
+                margin-top: 3vh;
+                margin-bottom: 3vh;
+            }
+            .submit-btn-small {
+                font-size: 1vw;
+                margin-top: 0.5vh;
+            }
+
+            label[for="image-num-input"] {
+                font-size: 3vw;
+                margin-right: 10px;
+                margin-left: 10px;
+            }
+
+            input[type="number"] {
+                padding: 10px 20px;
+                border-radius: 1vw;
+                font-size: 3vw;
+                border: none;
+                background-color: #fff;
+                width: 100%;
+                max-width: 100px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+                text-align: center;
+            }
         }
-        div[style*="rotate(45deg)"]::after {
-            content: '';
-            display: block;
-            width: 8px;
-            height: 8px;
-            background-color: #fff;
-            transform: rotate(-45deg);
-            position: absolute;
-            top: 21px;
-            right: -4px;
-        }
-        div[style*="rotate(45deg)"] span {
-            display: none;
-        }
-        div[style*="rotate(45deg)"] i {
-            font-size: 25px !important;
-        }
-        div[style*="rotate(45deg)"] {
-            width: 40px;
-            height: 40px;
-            font-size: 25px;
-        }
-        div[style*="rotate(45deg)"] i {
-            margin-top: 2px;
-        }
-        div[style*="rotate(45deg)"]::before,
-        div[style*="rotate(45deg)"]::after {
-            width: 6px;
-            height: 6px;
-            top: 18px;
-        }
-        div[style*="rotate(45deg)"]::before {
-            left: -3px;
-        }
-        div[style*="rotate(45deg)"]::after {
-            right: -3px;
-        }
-    }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="midjourney"><i class="fas fa-font"></i> Midjourney</div>
+        <div class="midjourney"><i class="fas fa-font"></i> 图片切割机</div>
+
+        <div class="input-container">
+            <label for="image-num-input">切割成</label>
+            <input type="number" id="image-num-input" min="2" value="4">
+            <label for="image-num-input">张</label>
+        </div>
 
         <button id="submit-btn">
-            <div>切割四小图</div>
-            <div style="font-size: 1vw;">可以选择多张图</div>
+            <div>选择图片</div>
+            <div class="submit-btn-small">可以选择多张图</div>
         </button>
     </div>
 
@@ -172,9 +217,9 @@
     <script src="jszip.min.js"></script>
     <script>
         if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent) && /MicroMessenger/i.test(navigator.userAgent)) {
-        const overlay = document.querySelector('.overlay');
-        const arrow = document.createElement('div');
-        arrow.style.cssText = `
+            const overlay = document.querySelector('.overlay');
+            const arrow = document.createElement('div');
+            arrow.style.cssText = `
             position: fixed;
             top: 30px;
             right: 30px;
@@ -190,10 +235,10 @@
             transform: rotate(-45deg);
             z-index: 1001;
         `;
-        arrow.innerHTML = '&rarr;';
-        const message = document.createElement('div');
-        message.innerText = '点击右上···\n用浏览器打开';
-        message.style.cssText = `
+            arrow.innerHTML = '&rarr;';
+            const message = document.createElement('div');
+            message.innerText = '点击右上···\n用浏览器打开';
+            message.style.cssText = `
             position: fixed;
             top: 40px;
             right: 96px;
@@ -205,16 +250,39 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             z-index: 1001;
         `;
-        document.body.appendChild(arrow);
-        document.body.appendChild(message);
-        overlay.style.display = 'block';
-    }
+            document.body.appendChild(arrow);
+            document.body.appendChild(message);
+            overlay.style.display = 'block';
+        }
 
         const submitBtn = document.getElementById('submit-btn');
         // 用于存储切割后的所有图片
         let imageArr = [];
         // 新增代码：添加用于处理文件的函数
-        function handleFiles(files) {
+        const input = document.createElement('input');
+
+        submitBtn.addEventListener('click', () => {
+            imageArr = [];
+            input.type = 'file';
+            input.multiple = true;
+            input.value = '';
+            console.log(input.changeListener);
+            if (input.changeListener) {
+                console.log("进来删除了");
+                input.removeEventListener('change', input.changeListener);
+            }
+            input.changeListener = ()=> {
+                handleFiles(input.files, parseInt(document.getElementById('image-num-input').value));
+            };
+
+            input.addEventListener('change', input.changeListener);
+
+            input.click();
+        });
+
+
+        function handleFiles(files, num) { // 接收用户输入的切割张数
+            console.log(files);
             showOverlay();
             showError('');
             showMessage('正在切割中...');
@@ -225,70 +293,60 @@
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = () => {
-                        processImage(img, files[i].name);
+                        processImage(img, files[i].name, num); //将张数传入处理函数
                     }
                 };
             }
         }
-        //文件读取
-        const input = document.createElement('input');
-        submitBtn.addEventListener('click', () => {
-            imageArr = [];
-            input.type = 'file';
-            input.multiple = true;
-            input.value = '';
-            input.addEventListener('change', () => {
-                handleFiles(input.files);
-            });
-            input.click();
-        });
 
         // 对每张照片进行处理的函数
-        function processImage(img, fileName) {
+        function processImage(img, fileName, num) { // 接收用户输入的切割张数
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            canvas.width = img.width / 2;
-            canvas.height = img.height / 2;
+            canvas.width = img.width / Math.sqrt(num);
+            canvas.height = img.height / Math.sqrt(num);
 
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            saveImage(canvas, "1_" + fileName);
-            ctx.drawImage(img, canvas.width, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            saveImage(canvas, "2_" + fileName);
-            ctx.drawImage(img, 0, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            saveImage(canvas, "3_" + fileName);
-            ctx.drawImage(img, canvas.width, canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            saveImage(canvas, "4_" + fileName);
+            for (let i = 0; i < Math.sqrt(num); i++) {
+                for (let j = 0; j < Math.sqrt(num); j++) {
+                    ctx.drawImage(img, i * canvas.width, j * canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+                    saveImage(canvas, (i * Math.sqrt(num) + j + 1) + "_" + new Date().getTime() + "_" + fileName);// 修改文件名
+                }
+            }
         }
+
 
         // 保存图像的函数
-        const zip = new JSZip();
+        
         function saveImage(canvas, name) {
-    canvas.toBlob(blob => {
-        imageArr.push({ name: name, blob: blob });
-
-        if (imageArr.length === 4 * input.files.length) {
+            const zip = new JSZip();
             showMessage('压缩图片到zip文件');
-
-            for (let i = 0; i < imageArr.length; i++) {
-                zip.file(imageArr[i].name, imageArr[i].blob);
-            }
-            zip.generateAsync({ type: 'blob' })
-                .then(blob => {
-                    const link = document.createElement('a');
-                    link.download = '切割图'+imageArr.length+'张.zip';
-                    link.href = URL.createObjectURL(blob);
-                    link.click();
-                    hideOverlay();
-                    showMessage('完成！');
-                })
-                .catch(error => {
-                    showError('出错了，请重试');
-                    console.error(error);
-                });
+            canvas.toBlob(blob => {
+                imageArr.push({ name: name, blob: blob });
+                let inputLength = input.files.length * parseInt(document.getElementById('image-num-input').value);
+                console.log(inputLength + "");
+                console.log("hhh: " + imageArr.length);
+                if (imageArr.length === inputLength) { // 根据用户输入的切割张数计算总张数
+                    for (let i = 0; i < imageArr.length; i++) {
+                        zip.file(imageArr[i].name, imageArr[i].blob);
+                    }
+                    zip.generateAsync({ type: 'blob' })
+                        .then(blob => {
+                            const link = document.createElement('a');
+                            link.download = '切割图' + inputLength + '张.zip';
+                            link.href = URL.createObjectURL(blob);
+                            link.click();
+                            hideOverlay();
+                            showMessage('完成！');
+                        })
+                        .catch(error => {
+                            showError('出错了，请重试');
+                            console.error(error);
+                        });
+                }
+            });
         }
-    });
-}
+
 
 
         /* 新增函数 */
