@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>批量读取本地照片并切割</title>
+    <link rel="shortcut icon" type="image/png" href="favicon.png">
     <style>
         body {
             background: linear-gradient(to bottom, #F2F3F4, #D8DBE2);
@@ -95,6 +96,61 @@
             z-index: 1000;
             display: none;
         }
+        /* 箭头和提示信息样式 */
+    @media (max-width: 768px) {
+        div[style*="rotate(45deg)"] {
+            top: 20px;
+            right: 20px;
+        }
+        div[style*="rotate(45deg)"]::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            transform: rotate(45deg);
+            position: absolute;
+            top: 21px;
+            left: -4px;
+        }
+        div[style*="rotate(45deg)"]::after {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            transform: rotate(-45deg);
+            position: absolute;
+            top: 21px;
+            right: -4px;
+        }
+        div[style*="rotate(45deg)"] span {
+            display: none;
+        }
+        div[style*="rotate(45deg)"] i {
+            font-size: 25px !important;
+        }
+        div[style*="rotate(45deg)"] {
+            width: 40px;
+            height: 40px;
+            font-size: 25px;
+        }
+        div[style*="rotate(45deg)"] i {
+            margin-top: 2px;
+        }
+        div[style*="rotate(45deg)"]::before,
+        div[style*="rotate(45deg)"]::after {
+            width: 6px;
+            height: 6px;
+            top: 18px;
+        }
+        div[style*="rotate(45deg)"]::before {
+            left: -3px;
+        }
+        div[style*="rotate(45deg)"]::after {
+            right: -3px;
+        }
+    }
     </style>
 </head>
 
@@ -115,6 +171,45 @@
 
     <script src="jszip.min.js"></script>
     <script>
+        if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent) && /MicroMessenger/i.test(navigator.userAgent)) {
+        const overlay = document.querySelector('.overlay');
+        const arrow = document.createElement('div');
+        arrow.style.cssText = `
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            border-radius: 50%;
+            font-size: 35px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(45deg);
+            z-index: 1001;
+        `;
+        arrow.innerHTML = '&rarr;';
+        const message = document.createElement('div');
+        message.innerText = '请用系统浏览器打开';
+        message.style.cssText = `
+            position: fixed;
+            top: 40px;
+            right: 96px;
+            padding: 10px;
+            background-color: #fff;
+            color: #333;
+            font-size: 16px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+        `;
+        document.body.appendChild(arrow);
+        document.body.appendChild(message);
+        overlay.style.display = 'block';
+    }
+    
         const submitBtn = document.getElementById('submit-btn');
         // 用于存储切割后的所有图片
         let imageArr = [];
