@@ -9,14 +9,14 @@
             background: linear-gradient(to bottom, #F2F3F4, #D8DBE2);
             font-family: Arial, sans-serif;
             color: #333;
-            margin: 0;
-            padding: 0;
+            margin: 2vw;
+            padding: 2vw;
         }
 
         .container {
-            max-width: 1080px;
+            max-width: 80%;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,11 +26,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 10vw;
             font-weight: bold;
             text-transform: uppercase;
             color: #333;
-            margin-bottom: 40px;
+            margin-bottom: 80px;
+            margin-top: 10vh;
         }
 
         .midjourney i {
@@ -38,15 +39,15 @@
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 5vw;
             margin-bottom: 20px;
         }
 
         button {
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
-            font-size: 18px;
+            border-radius: 1vw;
+            font-size: 5vw;
             color: #fff;
             background-color: #333;
             cursor: pointer;
@@ -74,7 +75,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 24px;
+            font-size: 5vw;
             font-weight: bold;
             color: #fff;
             text-align: center;
@@ -88,9 +89,9 @@
             right: 20px;
             padding: 10px 20px;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 3vw;
             color: #fff;
-            background-color: #f00;
+            background-color: rgb(0, 255, 34);
             z-index: 1000;
             display: none;
         }
@@ -100,16 +101,16 @@
 <body>
     <div class="container">
         <div class="midjourney"><i class="fas fa-font"></i> Midjourney</div>
-        <h1>请选择要切割的照片:</h1>
+        
         <button id="submit-btn">
             <div>切割四小图</div>
-            <div style="font-size: 14px;">可以选择多张图</div>
+            <div style="font-size: 1vw;">可以选择多张图</div>
         </button>
     </div>
     
     <!-- 新增 HTML -->
     <div class="overlay"></div>
-    <div class="loading">请稍后，正在处理...</div>
+    <div class="loading">正在处理中...</div>
     <div class="error"></div>
 
     <script src="jszip.min.js"></script>
