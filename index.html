@@ -1,7 +1,9 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>批量读取本地照片并切割</title>
     <link rel="shortcut icon" type="image/png" href="favicon.png">
     <meta property="og:image" content="https://gitee.com/cunkai/Midjourney-1-to-4/raw/master/favicon.png" />
@@ -24,6 +26,13 @@
             justify-content: center;
         }
 
+        .input-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .midjourney {
             display: flex;
             align-items: center;
@@ -34,6 +43,11 @@
             color: #03b4ab;
             margin-bottom: 10%;
             margin-top: 10%;
+        }
+
+        .chinaMJ {
+            font-size: 1vw;
+            margin: 2vh;
         }
 
         .midjourney i {
@@ -140,6 +154,7 @@
                 margin-left: 1vw;
             }
 
+
             select[type="number"] {
                 padding: 10px 20px;
                 border-radius: 1vw;
@@ -153,9 +168,6 @@
                 /* 重置默认行高 */
                 text-align: center;
             }
-
-
-
         }
 
         /* 横屏样式 */
@@ -205,13 +217,13 @@
     </style>
     <script>
         var _hmt = _hmt || [];
-        (function() {
-          var hm = document.createElement("script");
-          hm.src = "https://hm.baidu.com/hm.js?7361a42ea4b277a217e491241146f3c7";
-          var s = document.getElementsByTagName("script")[0]; 
-          s.parentNode.insertBefore(hm, s);
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?7361a42ea4b277a217e491241146f3c7";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
         })();
-        </script>        
+    </script>
 </head>
 
 <body>
@@ -230,18 +242,19 @@
                 <option value="49">49</option>
                 <option value="64">64</option>
                 <option value="81">81</option>
-              </select>
-              
+            </select>
+
             <label for="image-num-input">张</label>
         </div>
-
-        <p><a href="https://poe.com/ChinaMJ">Mj提示词网站:https://poe.com/ChinaMJ</a></p>
-
 
         <button id="submit-btn">
             <div>选择图片</div>
             <div class="submit-btn-small">可以选择多张图</div>
         </button>
+
+        <a class="chinaMJ" href="https://poe.com/ChinaMJ">Mj[英文]提示词网站: https://poe.com/ChinaMJ </a>
+        <a class="chinaMJ" href="https://poe.com/MJCN">Mj[中文]提示词网站: https://poe.com/MJCN </a>
+
     </div>
 
     <!-- 新增 HTML -->
@@ -305,7 +318,7 @@
                 input.removeEventListener('change', input.changeListener);
             }
             input.changeListener = () => {
-                handleFiles(input.files, parseInt(document.getElementById('image-num-input').value,10));
+                handleFiles(input.files, parseInt(document.getElementById('image-num-input').value, 10));
             };
 
             input.addEventListener('change', input.changeListener);
@@ -337,8 +350,7 @@
             const ctx = canvas.getContext('2d');
 
 
-            let CutCount = Math.sqrt(num) ;
-            console.log(num + " ----  "+CutCount);
+            let CutCount = Math.sqrt(num);
 
             canvas.width = Math.floor(img.width / CutCount);
             canvas.height = Math.floor(img.height / CutCount);
@@ -361,8 +373,8 @@
             showMessage('压缩图片到zip文件');
             canvas.toBlob(blob => {
                 imageArr.push({ name: name, blob: blob });
-                let inputLength = input.files.length * parseInt(document.getElementById('image-num-input').value,10);
-                console.log("inputLength:  "+inputLength);
+                let inputLength = input.files.length * parseInt(document.getElementById('image-num-input').value, 10);
+                console.log(imageArr.length+ " =?= " + inputLength);
                 if (imageArr.length === inputLength) { // 根据用户输入的切割张数计算总张数
                     for (let i = 0; i < imageArr.length; i++) {
                         zip.file(imageArr[i].name, imageArr[i].blob);
