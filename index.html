@@ -290,9 +290,10 @@
         <div class="midjourney"><i class="fas fa-font"></i> 图片切割机</div>
 
         <div class="input-container">
-            <label for="horizontal-cuts" id="image-num-input">横</label>
+            <label for="vertical-cuts" id="image-num-input">横</label>
             <input type="number" id="vertical-cuts" min="1" value="2">
-            <label for="vertical-cuts" id="image-num-input">竖</label>
+
+            <label for="horizontal-cuts" id="image-num-input">竖</label>
             <input type="number" id="horizontal-cuts" min="1" value="2">
 
             <!-- 正方形预览 -->
@@ -381,34 +382,52 @@
         //横向和竖线切割的值
         let horizontalCuts = 1;
         let verticalCuts = 1;
+        const inputHorizontal = document.getElementById('horizontal-cuts');
+        const inputVertical = document.getElementById('vertical-cuts');
 
         //让正方形显示切割预览
         function squareChange() {
-			horizontalCuts = parseInt(document.getElementById('horizontal-cuts').value);
-			verticalCuts = parseInt(document.getElementById('vertical-cuts').value);
+            horizontalCuts = parseInt(document.getElementById('horizontal-cuts').value);
+            if(horizontalCuts<1)
+            {
+                horizontalCuts = 1;
+            }
+            verticalCuts = parseInt(document.getElementById('vertical-cuts').value);
+            if(verticalCuts<1)
+            {
+                verticalCuts = 1;
+            }
 
-			const square = document.getElementById('square');
-			square.innerHTML = '';
+            const square = document.getElementById('square');
+            square.innerHTML = '';
 
-			for (let i = 1; i < horizontalCuts; i++) {
-				const line = document.createElement('div');
-				line.className = 'line horizontal-line';
-				line.style.top = `${(i / horizontalCuts) * 100}%`;
-				square.appendChild(line);
-			}
+            for (let i = 1; i < horizontalCuts; i++) {
+                const line = document.createElement('div');
+                line.className = 'line horizontal-line';
+                line.style.top = `${(i / horizontalCuts) * 100}%`;
+                square.appendChild(line);
+            }
 
-			for (let i = 1; i < verticalCuts; i++) {
-				const line = document.createElement('div');
-				line.className = 'line vertical-line';
-				line.style.left = `${(i / verticalCuts) * 100}%`;
-				square.appendChild(line);
-			}
-		}
+            for (let i = 1; i < verticalCuts; i++) {
+                const line = document.createElement('div');
+                line.className = 'line vertical-line';
+                line.style.left = `${(i / verticalCuts) * 100}%`;
+                square.appendChild(line);
+            }
+        }
 
-        document.getElementById('horizontal-cuts').addEventListener('input', function(){
+        inputHorizontal.addEventListener('change', function () {
+            if (inputHorizontal.value < 1) {
+                alert("竖向应该至少有1张(图片本身)");
+                inputHorizontal.value = 1;
+            }
             squareChange();
         });
-        document.getElementById('vertical-cuts').addEventListener('input', function(){
+        inputVertical.addEventListener('change', function () {
+            if (inputVertical.value < 1) {
+                alert("横向应该至少有1张(图片本身)");
+                inputVertical.value = 1;
+            }
             squareChange();
         });
 
@@ -431,7 +450,7 @@
             input.click();
         });
 
-        function init(){
+        function init() {
             squareChange();
         }
 
@@ -453,18 +472,18 @@
         }
 
         // 对每张照片进行处理的函数
-        function processImage(img, fileName) { 
+        function processImage(img, fileName) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
 
-            canvas.width = Math.floor(img.width /verticalCuts );
+            canvas.width = Math.floor(img.width / verticalCuts);
             canvas.height = Math.floor(img.height / horizontalCuts);
-// console.log(horizontalCuts);
+            // console.log(horizontalCuts);
 
-            for (let i = 0; i <verticalCuts; i++) {
-                for (let j = 0; j <horizontalCuts; j++) {
-// console.log(i+"   "+j);
+            for (let i = 0; i < verticalCuts; i++) {
+                for (let j = 0; j < horizontalCuts; j++) {
+                    // console.log(i+"   "+j);
                     ctx.drawImage(img, i * canvas.width, j * canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
                     saveImage(canvas, (i * horizontalCuts + j + 1) + "_" + new Date().getTime() + "_" + fileName);// 修改文件名
                 }
@@ -479,7 +498,7 @@
             showMessage('压缩图片到zip文件');
             canvas.toBlob(blob => {
                 imageArr.push({ name: name, blob: blob });
-                let inputLength = input.files.length * horizontalCuts* verticalCuts;
+                let inputLength = input.files.length * horizontalCuts * verticalCuts;
                 // console.log(imageArr.length + " =?= " + inputLength);
                 if (imageArr.length === inputLength) { // 根据用户输入的切割张数计算总张数
                     for (let i = 0; i < imageArr.length; i++) {
