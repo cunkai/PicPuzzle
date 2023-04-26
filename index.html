@@ -152,24 +152,48 @@
                 margin-top: 0.3vh;
             }
 
-            label[for="image-num-input"] {
+            label[id="image-num-input"] {
                 font-size: 5vw;
                 margin-right: 1vw;
                 margin-left: 1vw;
             }
 
 
-            select[type="number"] {
+            input[type="number"] {
                 padding: 10px 20px;
                 border-radius: 1vw;
                 font-size: 5vw;
                 border: none;
                 background-color: #fff;
-                width: auto;
+                width: 8vw;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
                 /* line-height: 1; */
                 /* 重置默认行高 */
                 text-align: center;
+                margin: 1vw;
+            }
+
+            #square-container {
+                position: relative;
+                width: 40px;
+                height: 40px;
+                border: 1px solid black;
+                margin-left: 1vw;
+            }
+
+            .line {
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            .horizontal-line {
+                width: 100%;
+                height: 1px;
+            }
+
+            .vertical-line {
+                width: 1px;
+                height: 100%;
             }
         }
 
@@ -208,22 +232,45 @@
                 margin-top: 0.5vh;
             }
 
-            label[for="image-num-input"] {
+            label[id="image-num-input"] {
                 font-size: 3vw;
-                margin-right: 10px;
-                margin-left: 10px;
+                margin-right: 1vw;
+                margin-left: 1vw;
             }
 
-            select[type="number"] {
-                padding: 10px 20px;
+            input[type="number"] {
                 border-radius: 1vw;
                 font-size: 3vw;
                 border: none;
                 background-color: #fff;
-                width: auto;
+                width: 10vw;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
                 align-items: center;
                 text-align: center;
+                margin: 1vw;
+            }
+
+            #square-container {
+                position: relative;
+                width: 40px;
+                height: 40px;
+                border: 1px solid black;
+                margin-left: 1vw;
+            }
+
+            .line {
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            .horizontal-line {
+                width: 100%;
+                height: 1px;
+            }
+
+            .vertical-line {
+                width: 1px;
+                height: 100%;
             }
         }
     </style>
@@ -238,13 +285,24 @@
     </script>
 </head>
 
-<body>
+<body onload="init()">
     <div class="container">
         <div class="midjourney"><i class="fas fa-font"></i> 图片切割机</div>
 
         <div class="input-container">
-            <label for="image-num-input">切割成</label>
-            <!-- <input type="number" id="image-num-input" min="2" value="4"> -->
+            <label for="horizontal-cuts" id="image-num-input">横</label>
+            <input type="number" id="vertical-cuts" min="1" value="2">
+            <label for="vertical-cuts" id="image-num-input">竖</label>
+            <input type="number" id="horizontal-cuts" min="1" value="2">
+
+            <!-- 正方形预览 -->
+            <div id="square-container">
+                <div id="square">
+                    <!-- 在这里添加虚线 -->
+                </div>
+            </div>
+
+            <!-- <label for="image-num-input">切割成</label>
             <select type="number" id="image-num-input">
                 <option value="4" selected>4</option>
                 <option value="9">9</option>
@@ -256,7 +314,7 @@
                 <option value="81">81</option>
             </select>
 
-            <label for="image-num-input">张</label>
+            <label for="image-num-input">张</label> -->
         </div>
 
         <button id="submit-btn">
@@ -320,6 +378,41 @@
         let imageArr = [];
         // 新增代码：添加用于处理文件的函数
         const input = document.createElement('input');
+        //横向和竖线切割的值
+        let horizontalCuts = 1;
+        let verticalCuts = 1;
+
+        //让正方形显示切割预览
+        function squareChange() {
+			horizontalCuts = parseInt(document.getElementById('horizontal-cuts').value);
+			verticalCuts = parseInt(document.getElementById('vertical-cuts').value);
+
+			const square = document.getElementById('square');
+			square.innerHTML = '';
+
+			for (let i = 1; i < horizontalCuts; i++) {
+				const line = document.createElement('div');
+				line.className = 'line horizontal-line';
+				line.style.top = `${(i / horizontalCuts) * 100}%`;
+				square.appendChild(line);
+			}
+
+			for (let i = 1; i < verticalCuts; i++) {
+				const line = document.createElement('div');
+				line.className = 'line vertical-line';
+				line.style.left = `${(i / verticalCuts) * 100}%`;
+				square.appendChild(line);
+			}
+		}
+
+        document.getElementById('horizontal-cuts').addEventListener('input', function(){
+            squareChange();
+        });
+        document.getElementById('vertical-cuts').addEventListener('input', function(){
+            squareChange();
+        });
+
+
 
         submitBtn.addEventListener('click', () => {
             imageArr = [];
@@ -330,7 +423,7 @@
                 input.removeEventListener('change', input.changeListener);
             }
             input.changeListener = () => {
-                handleFiles(input.files, parseInt(document.getElementById('image-num-input').value, 10));
+                handleFiles(input.files);
             };
 
             input.addEventListener('change', input.changeListener);
@@ -338,8 +431,11 @@
             input.click();
         });
 
+        function init(){
+            squareChange();
+        }
 
-        function handleFiles(files, num) { // 接收用户输入的切割张数
+        function handleFiles(files) { // 接收用户输入的切割张数
             showOverlay();
             showError('');
             showMessage('正在切割中...');
@@ -350,29 +446,27 @@
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = () => {
-                        processImage(img, files[i].name, num); //将张数传入处理函数
+                        processImage(img, files[i].name); //将图片传入处理函数
                     }
                 };
             }
         }
 
         // 对每张照片进行处理的函数
-        function processImage(img, fileName, num) { // 接收用户输入的切割张数
+        function processImage(img, fileName) { 
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
 
-            let CutCount = Math.sqrt(num);
+            canvas.width = Math.floor(img.width /verticalCuts );
+            canvas.height = Math.floor(img.height / horizontalCuts);
+// console.log(horizontalCuts);
 
-            canvas.width = Math.floor(img.width / CutCount);
-            canvas.height = Math.floor(img.height / CutCount);
-
-
-            for (let i = 0; i < CutCount; i++) {
-                for (let j = 0; j < CutCount; j++) {
-
+            for (let i = 0; i <verticalCuts; i++) {
+                for (let j = 0; j <horizontalCuts; j++) {
+// console.log(i+"   "+j);
                     ctx.drawImage(img, i * canvas.width, j * canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                    saveImage(canvas, (i * CutCount + j + 1) + "_" + new Date().getTime() + "_" + fileName);// 修改文件名
+                    saveImage(canvas, (i * horizontalCuts + j + 1) + "_" + new Date().getTime() + "_" + fileName);// 修改文件名
                 }
             }
         }
@@ -385,8 +479,8 @@
             showMessage('压缩图片到zip文件');
             canvas.toBlob(blob => {
                 imageArr.push({ name: name, blob: blob });
-                let inputLength = input.files.length * parseInt(document.getElementById('image-num-input').value, 10);
-                console.log(imageArr.length + " =?= " + inputLength);
+                let inputLength = input.files.length * horizontalCuts* verticalCuts;
+                // console.log(imageArr.length + " =?= " + inputLength);
                 if (imageArr.length === inputLength) { // 根据用户输入的切割张数计算总张数
                     for (let i = 0; i < imageArr.length; i++) {
                         zip.file(imageArr[i].name, imageArr[i].blob);
